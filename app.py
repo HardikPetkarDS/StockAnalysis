@@ -93,7 +93,18 @@ if submit:
             pred_scaled = model.predict(last_window)
             pred = scaler.inverse_transform(pred_scaled)[0][0]
 
+            # Show USD prediction
             st.success(f"📌 **Predicted Next-Day Close Price: {pred:.2f} USD**")
+
+            # Convert USD → INR
+            import requests
+            try:
+                rate = requests.get("https://api.exchangerate-api.com/v4/latest/USD").json()['rates']['INR']
+                pred_in_inr = pred * rate
+                st.metric("Predicted Price (INR)", f"{pred_in_inr:.2f} ₹")
+            except:
+                st.warning("Could not convert USD to INR.")
+
         except:
             st.error("Error loading the trained model.")
     else:
